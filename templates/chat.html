@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ personality.title() }} - Personality Simulator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        {% if personality == 'elonmusk' %}
+                            <i class="fas fa-rocket fa-2x"></i>
+                        {% elif personality == 'gandhi' %}
+                            <i class="fas fa-peace fa-2x"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="mb-0">
+                            {% if personality == 'elonmusk' %}
+                                Chatting with Elon Musk
+                            {% elif personality == 'gandhi' %}
+                                Chatting with Mahatma Gandhi
+                            {% endif %}
+                        </h4>
+                        <small class="text-light">
+                            {% if personality == 'elonmusk' %}
+                                CEO of Tesla & SpaceX
+                            {% elif personality == 'gandhi' %}
+                                Leader of Indian Independence Movement
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="ms-auto">
+                        <a href="{{ url_for('index') }}" class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-0">
+                <!-- Chat Messages Container -->
+                <div id="chat-messages" class="chat-container">
+                    {% for chat in chat_history %}
+                        <div class="message user-message">
+                            <strong>You:</strong> {{ chat.user_message }}
+                        </div>
+                        <div class="message bot-message">
+                            <strong>{{ personality.title() }}:</strong> {{ chat.bot_response }}
+                        </div>
+                    {% endfor %}
+                    
+                    <div id="typing-indicator" class="typing-indicator">
+                        <i class="fas fa-spinner fa-spin me-2"></i>{{ personality.title() }} is thinking...
+                    </div>
+                </div>
+
+                <!-- Message Input -->
+                <div class="p-3 border-top">
+                    <form id="chat-form" class="d-flex gap-2">
+                        <input type="text" id="message-input" class="form-control" 
+                               placeholder="Type your message..." required>
+                        <button type="submit" class="btn btn-primary" id="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Message -->
+{% if not chat_history %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chat-messages');
+        const welcomeMessage = document.createElement('div');
+        welcomeMessage.className = 'message bot-message';
+        
+        {% if personality == 'elonmusk' %}
+            welcomeMessage.innerHTML = '<strong>Elon Musk:</strong> Hey there! Ready to talk about rockets, electric cars, or maybe the future of humanity on Mars? What\'s on your mind?';
+        {% elif personality == 'gandhi' %}
+            welcomeMessage.innerHTML = '<strong>Gandhi:</strong> Namaste, my friend. I am here to share thoughts on peace, truth, and the path to a better world. How may I guide you today?';
+        {% endif %}
+        
+        chatMessages.appendChild(welcomeMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+</script>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chatForm = document.getElementById('chat-form');
+const messageInput = document.getElementById('message-input');
+const chatMessages = document.getElementById('chat-messages');
+const typingIndicator = document.getElementById('typing-indicator');
+const sendBtn = document.getElementById('send-btn');
+
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    // Disable input and show loading
+    messageInput.disabled = true;
+    sendBtn.disabled = true;
+    
+    // Add user message to chat
+    addMessage('You', message, 'user-message');
+    messageInput.value = '';
+    
+    // Show typing indicator
+    typingIndicator.style.display = 'block';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                personality: '{{ personality }}'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Add bot response to chat
+            addMessage('{{ personality.title() }}', data.response, 'bot-message');
+        } else {
+            addMessage('System', 'Sorry, there was an error processing your message.', 'bot-message');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        addMessage('System', 'Connection error. Please try again.', 'bot-message');
+    } finally {
+        // Hide typing indicator and re-enable input
+        typingIndicator.style.display = 'none';
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+    }
+});
+
+function addMessage(sender, text, messageClass) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${messageClass}`;
+    messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Focus on input when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    messageInput.focus();
+    
+    // Scroll to bottom of chat
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+// Allow Enter to send message
+messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.dispatchEvent(new Event('submit'));
+    }
+});
+</script>
+{% endblock %}

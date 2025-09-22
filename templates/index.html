@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Personality Simulator{% endblock %}
+
+{% block content %}
+<div class="text-center text-white mb-5">
+    <h1 class="display-4 fw-bold mb-3">
+        <i class="fas fa-comments me-3"></i>Personality Simulator
+    </h1>
+    <p class="lead">Chat with AI versions of famous personalities powered by RAG technology</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="row">
+            <!-- Elon Musk Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card personality-card h-100" onclick="window.location.href='/chat/elonmusk'">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-rocket fa-5x text-primary"></i>
+                        </div>
+                        <h3 class="card-title">Elon Musk</h3>
+                        <p class="card-text text-muted">
+                            Chat with the visionary entrepreneur about space exploration, 
+                            electric vehicles, AI, and the future of humanity.
+                        </p>
+                        <div class="mt-auto">
+                            <span class="badge bg-primary me-2">
+                                <i class="fas fa-rocket me-1"></i>SpaceX
+                            </span>
+                            <span class="badge bg-success me-2">
+                                <i class="fas fa-car me-1"></i>Tesla
+                            </span>
+                            <span class="badge bg-info">
+                                <i class="fas fa-brain me-1"></i>Neuralink
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <div class="btn btn-primary w-100">
+                            <i class="fas fa-comment me-2"></i>Start Chatting
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gandhi Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card personality-card h-100" onclick="window.location.href='/chat/gandhi'">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-peace fa-5x text-warning"></i>
+                        </div>
+                        <h3 class="card-title">Mahatma Gandhi</h3>
+                        <p class="card-text text-muted">
+                            Seek wisdom from the advocate of non-violence about peace, 
+                            justice, self-reliance, and spiritual growth.
+                        </p>
+                        <div class="mt-auto">
+                            <span class="badge bg-warning text-dark me-2">
+                                <i class="fas fa-heart me-1"></i>Non-violence
+                            </span>
+                            <span class="badge bg-info me-2">
+                                <i class="fas fa-balance-scale me-1"></i>Truth
+                            </span>
+                            <span class="badge bg-secondary">
+                                <i class="fas fa-pray me-1"></i>Wisdom
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <div class="btn btn-primary w-100">
+                            <i class="fas fa-comment me-2"></i>Start Chatting
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title text-center mb-4">
+                    <i class="fas fa-info-circle me-2"></i>How It Works
+                </h4>
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                        <h6>RAG Technology</h6>
+                        <p class="small text-muted">
+                            Uses retrieval-augmented generation to find relevant information from personality datasets
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-brain fa-3x text-success mb-3"></i>
+                        <h6>AI Responses</h6>
+                        <p class="small text-muted">
+                            Powered by Groq's fast language models for authentic personality simulation
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-history fa-3x text-info mb-3"></i>
+                        <h6>Chat History</h6>
+                        <p class="small text-muted">
+                            All conversations are saved and can be continued across sessions
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
