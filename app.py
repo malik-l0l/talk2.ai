@@ -84,7 +84,7 @@ User: {query}
 
 Gandhi:"""
         }
-        
+
         prompt = personality_prompts.get(personality, f"""You are {personality}. Use the following context to respond as this personality would.
 
 Context: {context}
@@ -92,13 +92,10 @@ Context: {context}
 User: {query}
 
 {personality}:""")
-        
-        # Generate response using Groq
+
         response = groq_client.chat.completions.create(
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            model="mixtral-8x7b-32768",
+            messages=[{"role": "user", "content": prompt}],
+            model="llama-3.3-70b-versatile" ,
             max_tokens=500,
             temperature=0.7
         )
