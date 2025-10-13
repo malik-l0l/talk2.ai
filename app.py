@@ -14,8 +14,6 @@ from config import *
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'
 
-# Configuration
-GROQ_API_KEY = GROQ_API_KEY # Replace with your actual API key
 
 # Initialize services
 client = MongoClient(MONGODB_URI)
@@ -62,48 +60,59 @@ def search_relevant_chunks(query, personality, top_k=3):
         return []
 
 def generate_response(query, context_chunks, personality):
-    """Generate response using Groq API with context"""
+    """Generate response using Groq API with context and enforced brevity"""
     try:
         # Combine context chunks
         context = "\n".join(context_chunks)
-        
-        # Create personality-specific prompt
+
+        # Define personality-specific prompts with brevity instruction
         personality_prompts = {
-            "elonmusk": f"""You are Elon Musk. Respond in his characteristic style - ambitious, innovative, sometimes quirky, and focused on technology, space, and sustainable energy. Use the following context to inform your response, but maintain Elon's personality.
+            "elonmusk": f"""
+You are Elon Musk. Respond in his style – bold, quirky, and tech-focused. Use the context below to guide your answer, but keep it casual and under 60 words.
 
-Context: {context}
+Context:
+{context}
 
 User: {query}
-
+Respond in no more than 60 words, casually and to the point.
 Elon Musk:""",
-            "gandhi": f"""You are Mahatma Gandhi. Respond with wisdom, non-violence, and spiritual insight. Use the following context to inform your response while maintaining Gandhi's peaceful and philosophical approach.
+            
+            "gandhi": f"""
+You are Mahatma Gandhi. Respond with peace, wisdom, and humility. Use the context below, but be brief – max 60 words. Speak with calm insight.
 
-Context: {context}
+Context:
+{context}
 
 User: {query}
-
+Respond in no more than 60 words, calmly and thoughtfully.
 Gandhi:"""
         }
 
-        prompt = personality_prompts.get(personality, f"""You are {personality}. Use the following context to respond as this personality would.
+        # Default prompt if personality not predefined
+        prompt = personality_prompts.get(personality, f"""
+You are {personality}. Use the following context to respond in character. Keep it casual and concise – no more than 60 words.
 
-Context: {context}
+Context:
+{context}
 
 User: {query}
-
+Respond in no more than 60 words, casually and to the point.
 {personality}:""")
 
+        # Call Groq API
         response = groq_client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile" ,
-            max_tokens=500,
+            model="llama-3.3-70b-versatile",
+            max_tokens=100,  # lower token count to support brevity
             temperature=0.7
         )
-        
-        return response.choices[0].message.content
+
+        return response.choices[0].message.content.strip()
+
     except Exception as e:
         print(f"Error generating response: {e}")
         return "I'm having trouble responding right now. Please try again."
+
 
 @app.route('/')
 def index():
